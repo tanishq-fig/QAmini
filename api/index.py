@@ -1,40 +1,47 @@
 """
-Vercel serverless function handler for QAMini FastAPI application
+QAMini Vercel Serverless Function Entry Point
+Provides basic API stub - for full functionality, deploy backend separately
 """
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import sys
-from pathlib import Path
+import json
+from http.server import BaseHTTPRequestHandler
 
-# For Vercel cold start optimization, we'll use a lightweight approach
-# This file acts as the entry point for all API requests
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        """Handle GET requests"""
+        if self.path == "/api/health":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            response = json.dumps({
+                "status": "ok",
+                "message": "QAMini API is ready",
+                "note": "For full functionality, deploy backend to Railway, Render, or similar"
+            })
+            self.wfile.write(response.encode())
+        else:
+            self.send_response(404)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": "Not found"}).encode())
+    
+    def do_POST(self):
+        """Handle POST requests"""
+        self.send_response(503)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(json.dumps({
+            "detail": "Backend API not available. Please deploy backend to Railway, Render, or Heroku.",
+            "note": "Set VITE_API_BASE environment variable to your backend URL"
+        }).encode())
+    
+    def do_OPTIONS(self):
+        """Handle CORS preflight requests"""
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.end_headers()
 
-# Try to import from local backend, fall back to importing modules directly
-sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
-
-# Create a minimal app for Vercel
-# Note: For production, you may want to use a separate backend service
-app = FastAPI(title="QAMini API", version="1.0.0")
-
-# Enable CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Health check endpoint
-@app.get("/api/health")
-async def health():
-    return {"status": "ok", "message": "QAMini API is running on Vercel"}
-
-@app.get("/")
-async def root():
-    return {"message": "QAMini API - Backend running on Vercel"}
-
-# NOTE: For full functionality with data analysis and chat features:
-# 1. Deploy backend separately to Railway, Heroku, or similar
-# 2. Update frontend API_BASE URL in App.jsx to point to the backend service
-# 3. Or use Vercel Functions to serve the entire FastAPI backend
