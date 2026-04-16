@@ -620,75 +620,87 @@ def exp_mle_estimation(df: pd.DataFrame) -> dict[str, Any]:
             return {'error': 'No numeric columns.', 'plots': [], 'findings': ['No data.']}
 
         results = {}
-        # Analyze up to 4 columns
-        for col in num_cols[:4]:
-            if _is_probably_id(df, col):
-                continue
-            data = df[col].dropna().values
-            if len(data) < 5 or np.all(data == data[0]):
-                continue
+        # Analyze all numeric columns
+        for col in num_cols:
+            try:
+                data = df[col].dropna().values
+                if len(data) < 3:  # Skip if too few data points
+                    continue
+                if np.all(data == data[0]):  # Skip constant columns
+                    continue
 
-            col_results = {}
+                col_results = {}
 
-            # Normal MLE
-            mu_mle = np.mean(data)
-            sigma_mle = np.std(data, ddof=0)
-            ks_stat_norm, ks_p_norm = stats.kstest(data, 'norm', args=(mu_mle, sigma_mle))
-            col_results['normal'] = {
-                'mu': round(float(mu_mle), 4),
-                'sigma': round(float(sigma_mle), 4),
-                'ks_statistic': round(float(ks_stat_norm), 4),
-                'ks_p_value': round(float(ks_p_norm), 4),
-                'good_fit': bool(ks_p_norm > 0.05),
-            }
+                # Normal MLE
+                mu_mle = np.mean(data)
+                sigma_mle = np.std(data, ddof=0)
+                if sigma_mle > 0:
+                    ks_stat_norm, ks_p_norm = stats.kstest(data, 'norm', args=(mu_mle, sigma_mle))
+                    col_results['normal'] = {
+                        'mu': round(float(mu_mle), 4),
+                        'sigma': round(float(sigma_mle), 4),
+                        'ks_statistic': round(float(ks_stat_norm), 4),
+                        'ks_p_value': round(float(ks_p_norm), 4),
+                        'good_fit': bool(ks_p_norm > 0.05),
+                    }
 
-            # Exponential MLE (only for positive data)
-            pos_data = data[data > 0]
-            if len(pos_data) > 5:
-                lambda_mle = float(1 / np.mean(pos_data))
-                ks_stat_exp, ks_p_exp = stats.kstest(pos_data, 'expon', args=(0, 1 / lambda_mle))
-                col_results['exponential'] = {
-                    'lambda': round(float(lambda_mle), 6),
-                    'mean': round(float(1 / lambda_mle), 4),
-                    'ks_statistic': round(float(ks_stat_exp), 4),
-                    'ks_p_value': round(float(ks_p_exp), 4),
-                    'good_fit': bool(ks_p_exp > 0.05),
-                }
+                # Exponential MLE (only for positive data)
+                pos_data = data[data > 0]
+                if len(pos_data) > 3:
+                    try:
+                        lambda_mle = float(1 / np.mean(pos_data))
+                        ks_stat_exp, ks_p_exp = stats.kstest(pos_data, 'expon', args=(0, 1 / lambda_mle))
+                        col_results['exponential'] = {
+                            'lambda': round(float(lambda_mle), 6),
+                            'mean': round(float(1 / lambda_mle), 4),
+                            'ks_statistic': round(float(ks_stat_exp), 4),
+                            'ks_p_value': round(float(ks_p_exp), 4),
+                            'good_fit': bool(ks_p_exp > 0.05),
+                        }
+                    except:
+                        pass
 
-            # Poisson MLE (for non-negative integer-like data)
-            int_data = data[(data >= 0) & (data == np.floor(data))]
-            if len(int_data) > 5:
-                lambda_p = np.mean(int_data)
-                col_results['poisson'] = {
-                    'lambda': round(float(lambda_p), 4),
-                    'note': 'Data approximated as integer counts.',
-                }
+                # Poisson MLE (for non-negative integer-like data)
+                int_data = data[(data >= 0) & (data == np.floor(data))]
+                if len(int_data) > 3:
+                    try:
+                        lambda_p = np.mean(int_data)
+                        col_results['poisson'] = {
+                            'lambda': round(float(lambda_p), 4),
+                            'note': 'Data approximated as integer counts.',
+                        }
+                    except:
+                        pass
 
-            results[col] = col_results
+                if col_results:  # Only add if we got some results
+                    results[col] = col_results
 
-            # Plot: histogram with fitted distributions
-            fig, ax = plt.subplots(figsize=(8, 5))
-            ax.hist(data, bins=min(30, max(10, len(data) // 5)),
-                   density=True, alpha=0.6, color='#14b8a6', edgecolor='#0d9488',
-                   label='Data')
-            x_range = np.linspace(data.min(), data.max(), 200)
+                    # Plot: histogram with fitted distributions
+                    fig, ax = plt.subplots(figsize=(8, 5))
+                    ax.hist(data, bins=min(30, max(10, len(data) // 5)),
+                           density=True, alpha=0.6, color='#14b8a6', edgecolor='#0d9488',
+                           label='Data')
+                    x_range = np.linspace(data.min(), data.max(), 200)
 
-            # Normal overlay
-            ax.plot(x_range, stats.norm.pdf(x_range, mu_mle, sigma_mle),
-                   color='#ef4444', linewidth=2, label=f'Normal (μ={mu_mle:.2f}, σ={sigma_mle:.2f})')
+                    # Normal overlay
+                    if 'normal' in col_results:
+                        ax.plot(x_range, stats.norm.pdf(x_range, mu_mle, sigma_mle),
+                               color='#ef4444', linewidth=2, label=f'Normal (μ={mu_mle:.2f}, σ={sigma_mle:.2f})')
 
-            # Exponential overlay (if applicable)
-            if 'exponential' in col_results and pos_data.min() >= 0:
-                x_exp = np.linspace(0, data.max(), 200)
-                ax.plot(x_exp, stats.expon.pdf(x_exp, 0, 1 / lambda_mle),
-                       color='#f59e0b', linewidth=2, linestyle='--',
-                       label=f'Exponential (λ={lambda_mle:.4f})')
+                    # Exponential overlay (if applicable)
+                    if 'exponential' in col_results and pos_data.min() >= 0:
+                        x_exp = np.linspace(0, data.max(), 200)
+                        ax.plot(x_exp, stats.expon.pdf(x_exp, 0, 1 / lambda_mle),
+                               color='#f59e0b', linewidth=2, linestyle='--',
+                               label=f'Exponential (λ={lambda_mle:.4f})')
 
-            ax.set_title(f'MLE Distribution Fit — {col}', fontsize=13, fontweight='bold')
-            ax.legend(fontsize=9)
-            ax.grid(True, alpha=0.3)
-            fig.tight_layout()
-            plots.append({'title': f'MLE: {col}', 'image': _fig_to_base64(fig)})
+                    ax.set_title(f'MLE Distribution Fit — {col}', fontsize=13, fontweight='bold')
+                    ax.legend(fontsize=9)
+                    ax.grid(True, alpha=0.3)
+                    fig.tight_layout()
+                    plots.append({'title': f'MLE: {col}', 'image': _fig_to_base64(fig)})
+            except Exception as e:
+                continue  # Skip columns that cause errors
 
         return {
             'distributions': results,

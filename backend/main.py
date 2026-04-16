@@ -27,7 +27,7 @@ app = FastAPI(title="QAMini v2", version="2.0.0")
 # Get CORS origins from environment variable or use defaults
 CORS_ORIGINS = os.getenv(
     "CORS_ORIGINS",
-    "http://localhost:5174,http://localhost:3000"
+    "http://localhost:5173,http://localhost:5174,http://localhost:3000"
 ).split(",")
 
 app.add_middleware(
@@ -36,6 +36,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # ─── Robust Serialization Helper ────────────────────────────────
