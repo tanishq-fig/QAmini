@@ -7,6 +7,7 @@ __pycache__/
 dist/
 build/
 .env
+.env.local
 .DS_Store
 *.log
 .vite/
@@ -14,3 +15,8 @@ build/
 .vscode/
 *.swp
 *.swo
+.vercel/
+.cache/
+frontend/node_modules/
+backend/__pycache__/
+.vercel

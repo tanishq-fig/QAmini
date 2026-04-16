@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: qamini-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
+      - key: DATABASE_URL
+        value: sqlite:///./argo.db
+      - key: CORS_ORIGINS
+        value: "https://frontend-iota-hazel-11.vercel.app"
