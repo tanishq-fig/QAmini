@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\tanis\Desktop\qamini\backend\main.py", line 16, in <module>
+    from fastapi import FastAPI, UploadFile, File, HTTPException
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\__init__.py", line 7, in <module>
+    from .applications import FastAPI as FastAPI
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\applications.py", line 10, in <module>
+    from fastapi import routing
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\routing.py", line 34, in <module>
+    from fastapi import params
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\params.py", line 7, in <module>
+    from fastapi.exceptions import FastAPIDeprecationWarning
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\exceptions.py", line 5, in <module>
+    from pydantic import BaseModel, create_model
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\pydantic\__init__.py", line 5, in <module>
+    from ._migration import getattr_migration
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\pydantic\_migration.py", line 4, in <module>
+    from pydantic.warnings import PydanticDeprecatedSince20
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\pydantic\warnings.py", line 5, in <module>
+    from .version import version_short
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\pydantic\version.py", line 7, in <module>
+    from pydantic_core import __version__ as __pydantic_core_version__
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\pydantic_core\__init__.py", line 6, in <module>
+    from typing_extensions import Sentinel
+ImportError: cannot import name 'Sentinel' from 'typing_extensions' (C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\typing_extensions.py)

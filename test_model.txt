@@ -1,0 +1,21 @@
+Disabling PyTorch because PyTorch >= 2.1 is required but found 2.0.1+cu118
+None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\sentence_transformers\__init__.py", line 15, in <module>
+    from sentence_transformers.cross_encoder import (
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\sentence_transformers\cross_encoder\__init__.py", line 5, in <module>
+    from .trainer import CrossEncoderTrainer
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\sentence_transformers\cross_encoder\trainer.py", line 23, in <module>
+    from sentence_transformers.trainer import SentenceTransformerTrainer
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\sentence_transformers\trainer.py", line 21, in <module>
+    from transformers.trainer import TRAINING_ARGS_NAME
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\transformers\trainer.py", line 69, in <module>
+    from .modeling_utils import PreTrainedModel, load_sharded_checkpoint, unwrap_model
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\transformers\modeling_utils.py", line 57, in <module>
+    from .integrations.flex_attention import flex_attention_forward
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\transformers\integrations\flex_attention.py", line 46, in <module>
+    class WrappedFlexAttention:
+  File "C:\Users\tanis\AppData\Local\Programs\Python\Python310\lib\site-packages\transformers\integrations\flex_attention.py", line 61, in WrappedFlexAttention
+    @torch.compiler.disable(recursive=False)
+AttributeError: module 'torch' has no attribute 'compiler'

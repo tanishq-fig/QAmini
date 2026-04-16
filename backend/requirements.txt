@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+sentence-transformers
+faiss-cpu
+pandas
+python-multipart
+numpy
+scikit-learn
