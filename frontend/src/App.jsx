@@ -5,7 +5,8 @@ import ExperimentView from './components/ExperimentView'
 import ChatArea from './components/ChatArea'
 import InputBar from './components/InputBar'
 
-const API_BASE = 'http://localhost:8000'
+// Use environment variable or default to localhost for development
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000'
 
 function App() {
   const [theme, setTheme] = useState(() =>
